@@ -1,102 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GPA Calculator</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      color: #222;
       padding: 30px;
-      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 700px;
+    }
+    h1 {
       text-align: center;
+      margin-bottom: 20px;
+      color: #333;
     }
     table {
-      margin: auto;
+      width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 10px;
     }
     th, td {
-      padding: 12px 16px;
+      padding: 12px;
+      text-align: center;
     }
-    select {
-      padding: 6px;
+    th {
+      background-color: #f0f0f0;
+    }
+    select, input {
+      padding: 8px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fff;
+    }
+    input:read-only {
+      background: #f9f9f9;
     }
     .btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #007bff;
+      display: inline-block;
+      background: #007bff;
       color: white;
       border: none;
-      font-size: 16px;
+      padding: 10px 18px;
+      margin-top: 20px;
+      font-size: 14px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.3s;
     }
     .btn:hover {
-      background-color: #0056b3;
+      background: #0056b3;
+    }
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #dc3545;
+    }
+    .btn-small:hover {
+      background: #b02a37;
+    }
+    .controls {
+      text-align: center;
+      margin-top: 15px;
     }
     .result {
-      margin-top: 30px;
-      font-size: 20px;
-      color: green;
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .remark {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+    }
+    @media(max-width: 600px) {
+      th, td {
+        font-size: 13px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
 
+<div class="card">
   <h1>GPA Calculator</h1>
   <form id="gpaForm">
-    <table border="1">
+    <table id="subjectTable">
       <tr>
         <th>Subject</th>
         <th>Grade</th>
         <th>Credit</th>
+        <th>Action</th>
       </tr>
-      <!-- 2 subjects x 4 credit -->
-      <tr><td>Subject 1</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="4" readonly></td></tr>
-      <tr><td>Subject 2</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="4" readonly></td></tr>
-      <!-- 4 subjects x 3 credit -->
-      <tr><td>Subject 3</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="3" readonly></td></tr>
-      <tr><td>Subject 4</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="3" readonly></td></tr>
-      <tr><td>Subject 5</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="3" readonly></td></tr>
-      <tr><td>Subject 6</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="3" readonly></td></tr>
-      <!-- 2 labs x 1 credit -->
-      <tr><td>Lab 1</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="1" readonly></td></tr>
-      <tr><td>Lab 2</td><td><select name="grade"><option>O</option><option>A+</option><option>A</option><option>B+</option><option>B</option></select></td><td><input type="text" value="1" readonly></td></tr>
     </table>
+    <div class="controls">
+      <button type="button" class="btn" onclick="addSubject()">Add Subject</button>
+    </div>
     <button type="button" class="btn" onclick="calculateGPA()">Calculate GPA</button>
   </form>
-
   <div class="result" id="result"></div>
+</div>
 
-  <script>
-    const gradeMap = {
-      "O": 10,
-      "A+": 9,
-      "A": 8,
-      "B+": 7,
-      "B": 6
-    };
+<script>
+  const gradeMap = {
+    "O": 10,
+    "A+": 9,
+    "A": 8,
+    "B+": 7,
+    "B": 6,
+    "C": 5
+  };
 
-    function calculateGPA() {
-      let totalPoints = 0;
-      let totalCredits = 0;
+  let subjectCount = 0;
 
-      const form = document.getElementById("gpaForm");
-      const rows = form.querySelectorAll("tr");
+  function remark(gpa) {
+    if (gpa >= 9.5) return "Outstanding performance";
+    if (gpa >= 9) return "Excellent work";
+    if (gpa >= 8) return "Very good";
+    if (gpa >= 7) return "Good";
+    if (gpa >= 6) return "Satisfactory";
+    if (gpa >= 5) return "Pass";
+    return "Needs Improvement";
+  }
 
-      for (let i = 1; i < rows.length; i++) {
-        const grade = rows[i].querySelector("select").value;
-        const credit = parseInt(rows[i].querySelector("input").value);
+  function addSubject(grade = "O", credit = 3) {
+    subjectCount++;
+    const table = document.getElementById("subjectTable");
+    const row = table.insertRow(-1);
+    row.setAttribute("id", "row" + subjectCount);
 
-        if (grade in gradeMap) {
-          totalPoints += gradeMap[grade] * credit;
-          totalCredits += credit;
-        }
-      }
+    const cell1 = row.insertCell(0);
+    const cell2 = row.insertCell(1);
+    const cell3 = row.insertCell(2);
+    const cell4 = row.insertCell(3);
 
-      const gpa = (totalPoints / totalCredits).toFixed(10);
-      document.getElementById("result").textContent = "Your GPA is: " + gpa;
+    cell1.textContent = `Subject ${subjectCount}`;
+
+    const gradeSelect = document.createElement("select");
+    for (let g in gradeMap) {
+      const opt = document.createElement("option");
+      opt.value = g;
+      opt.text = g;
+      if (g === grade) opt.selected = true;
+      gradeSelect.appendChild(opt);
     }
-  </script>
+    cell2.appendChild(gradeSelect);
+
+    const creditInput = document.createElement("input");
+    creditInput.type = "number";
+    creditInput.min = "1";
+    creditInput.value = credit;
+    cell3.appendChild(creditInput);
+
+    const delBtn = document.createElement("button");
+    delBtn.innerText = "Delete";
+    delBtn.className = "btn btn-small";
+    delBtn.type = "button";
+    delBtn.onclick = () => table.deleteRow(row.rowIndex);
+    cell4.appendChild(delBtn);
+  }
+
+  function calculateGPA() {
+    const table = document.getElementById("subjectTable");
+    let totalPoints = 0, totalCredits = 0;
+
+    for (let i = 1; i < table.rows.length; i++) {
+      const grade = table.rows[i].cells[1].querySelector("select").value;
+      const credit = parseFloat(table.rows[i].cells[2].querySelector("input").value);
+
+      if (!gradeMap[grade] || isNaN(credit)) continue;
+
+      totalPoints += gradeMap[grade] * credit;
+      totalCredits += credit;
+    }
+
+    const resultDiv = document.getElementById("result");
+
+    if (totalCredits === 0) {
+      resultDiv.innerHTML = "<span style='color:red'>Please add valid subjects and credits.</span>";
+      return;
+    }
+
+    const gpa = (totalPoints / totalCredits).toFixed(10);
+    resultDiv.innerHTML = `
+      GPA: ${gpa}
+      <div class="remark">${remark(gpa)}</div>
+    `;
+  }
+
+  // Initial setup: 2x4, 4x3, 2x1 = total 22 credits
+  [4, 4, 3, 3, 3, 3, 1, 1].forEach(credit => addSubject("O", credit));
+</script>
 
 </body>
 </html>
